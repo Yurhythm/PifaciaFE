@@ -1,10 +1,7 @@
 <template>
     <Layout>
-        <div class="container mt-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2>Manajemen User</h2>
-                <button class="btn btn-primary" @click="openModal">Tambah User</button>
-            </div>
+        <div>
+            <h2 class="mb-4">Manajemen User</h2>
 
             <!-- Modal Form -->
             <div class="modal fade" id="userModal" tabindex="-1">

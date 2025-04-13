@@ -15,10 +15,10 @@
                     <router-link to="/peserta" class="nav-link">Peserta</router-link>
                 </li>
                 <li v-if="permissions.includes('user')" class="nav-item mb-2">
-                    <router-link to="/user" class="nav-link">User Management</router-link>
+                    <router-link to="/user" class="nav-link">Manajemen User</router-link>
                 </li>
                 <li v-if="permissions.includes('role')" class="nav-item mb-2">
-                    <router-link to="/role" class="nav-link">Role Management</router-link>
+                    <router-link to="/role" class="nav-link">Manajemen Role</router-link>
                 </li>
             </ul>
         </div>

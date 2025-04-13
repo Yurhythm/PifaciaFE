@@ -1,10 +1,7 @@
 <template>
     <Layout>
-        <div class="container py-4">
-            <div class="d-flex justify-content-between mb-3">
-                <h4>Role Management</h4>
-                <button @click="openModal()" class="btn btn-primary">Tambah Role</button>
-            </div>
+        <div>
+            <h2 class="mb-4">Manajemen Role</h2>
 
             <table class="table table-bordered table-striped">
                 <thead>
