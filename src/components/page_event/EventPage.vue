@@ -60,8 +60,11 @@
         </ul>
       </nav>
 
+      <hr>
+
       <EventForm :show="showForm" :event="selectedEvent" @close="closeForm" @saved="fetchEvents" />
     </div>
+    <AuditTrail />
   </Layout>
 
   <div v-if="showExportModal" class="modal fade show d-block" tabindex="-1">
@@ -91,6 +94,7 @@
     </div>
     <div class="modal-backdrop fade show"></div>
   </div>
+
 </template>
 
 <script setup>
@@ -98,6 +102,7 @@ import Layout from '../layout/Layout.vue'
 import { ref, onMounted } from 'vue'
 import api from '../../axios'
 import EventForm from '../page_event/EventForm.vue'
+import AuditTrail from '../page_event/AuditTrail.vue'
 
 const events = ref({})
 const search = ref('')
