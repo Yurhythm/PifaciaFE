@@ -4,58 +4,49 @@
             <div class="modal-content">
                 <form @submit.prevent="handleSubmit">
                     <div class="modal-header">
-                        <h5 class="modal-title">{{ form.id ? 'Edit Event' : 'Tambah Event' }}</h5>
+                        <h5 class="modal-title">{{ form.id ? 'Edit Tiket' : 'Tambah Tiket' }}</h5>
                         <button type="button" class="btn-close" @click="$emit('close')"></button>
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label>Judul</label>
-                            <input v-model="form.judul" class="form-control" required />
-                            <div v-if="errors.judul" style="color:red;">
-                                {{ errors.judul[0] }}
+                            <label>Event</label>
+                            <select v-model="form.event_id" class="form-select" required>
+                                <option value="" disabled>Pilih Event</option>
+                                <option v-for="event in events" :key="event.id" :value="event.id">
+                                    {{ event.judul }}
+                                </option>
+                            </select>
+                            <div v-if="errors.event_id" style="color:red;">
+                                {{ errors.event_id[0] }}
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label>Mulai</label>
-                            <input type="date" v-model="form.mulai_pada" class="form-control" required />
-                            <div v-if="errors.mulai_pada" style="color:red;">
-                                {{ errors.mulai_pada[0] }}
+                            <label>Tipe Tiket</label>
+                            <input v-model="form.tipe" class="form-control" required />
+                            <div v-if="errors.tipe" style="color:red;">
+                                {{ errors.tipe[0] }}
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label>Selesai</label>
-                            <input type="date" v-model="form.selesai_pada" class="form-control" required />
-                            <div v-if="errors.selesai_pada" style="color:red;">
-                                {{ errors.selesai_pada[0] }}
+                            <label>Harga</label>
+                            <input type="number" v-model="form.harga" class="form-control" required />
+                            <div v-if="errors.harga" style="color:red;">
+                                {{ errors.harga[0] }}
                             </div>
-                        </div>
-                        <div class="mb-3">
-                            <label>Brosur PDF</label>
-                            <input type="file" @change="handleFile" class="form-control" />
-                            <div v-if="errors.brosur_pdf" style="color:red;">
-                                {{ errors.brosur_pdf[0] }}
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label>Lokasi</label>
-                            <input v-model="form.metadata.lokasi" class="form-control" />
-                        </div>
-                        <div class="mb-3">
-                            <label>Sponsor</label>
-                            <input v-model="form.metadata.sponsor" class="form-control" />
-                        </div>
-                        <div class="mb-3">
-                            <label>Pembawa Acara</label>
-                            <input v-model="form.metadata.pembawa_acara" class="form-control" />
-                        </div>
-                        <div v-if="errors.metadata" style="color:red;">
-                            {{ errors.metadata[0] }}
                         </div>
                         <div class="form-check mb-3">
-                            <input v-model="form.daring" class="form-check-input" type="checkbox" id="daring" />
-                            <label class="form-check-label" for="daring">Daring</label>
-                            <div v-if="errors.daring" style="color:red;">
-                                {{ errors.daring[0] }}
+                            <input v-model="form.tersedia" class="form-check-input" type="checkbox" id="tersedia" />
+                            <label class="form-check-label" for="tersedia">Tersedia</label>
+                            <div v-if="errors.tersedia" style="color:red;">
+                                {{ errors.tersedia[0] }}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label>Fitur (Pisahkan dengan koma)</label>
+                            <input v-model="fiturInput" class="form-control"
+                                placeholder="Contoh: VIP, Snack, Sertifikat" />
+                            <div v-if="errors.fitur" style="color:red;">
+                                {{ errors.fitur[0] }}
                             </div>
                         </div>
                     </div>
@@ -71,109 +62,81 @@
 </template>
 
 <script setup>
-import { reactive, watch } from 'vue'
+import { reactive, watch, ref } from 'vue'
 import api from '../../axios'
 import { toRaw } from 'vue'
 
-const props = defineProps(['show', 'event'])
+const props = defineProps(['show', 'tiket']) 
 const emit = defineEmits(['close', 'saved'])
+
 const errors = reactive({})
+const fiturInput = ref('')
 
 const form = reactive({
     id: null,
-    judul: '',
-    mulai_pada: '',
-    selesai_pada: '',
-    daring: false,
-    brosur_pdf: null,
-    metadata: {
-        lokasi: '',
-        sponsor: '',
-        pembawa_acara: '',
-    }
+    event_id: null,
+    tipe: '',
+    harga: 0,
+    tersedia: true,
+    fitur: []
 })
 
 watch(
-    () => props.event,
+    () => props.tiket,
     (val) => {
         if (val) {
             Object.assign(form, toRaw(val))
-            if (form.mulai_pada) form.mulai_pada = formatTanggal(form.mulai_pada)
-            if (form.selesai_pada) form.selesai_pada = formatTanggal(form.selesai_pada)
-            if (!val.metadata || typeof val.metadata !== 'object') {
-                form.metadata = {
-                    lokasi: '',
-                    sponsor: '',
-                    pembawa_acara: '',
-                }
+            if (Array.isArray(val.fitur)) {
+                fiturInput.value = val.fitur.join(', ')
             } else {
-                form.metadata = {
-                    lokasi: val.metadata.lokasi || '',
-                    sponsor: val.metadata.sponsor || '',
-                    pembawa_acara: val.metadata.pembawa_acara || '',
-                }
+                fiturInput.value = ''
             }
+
         } else {
             form.id = null
-            form.judul = ''
-            form.mulai_pada = ''
-            form.selesai_pada = ''
-            form.daring = 0
-            form.brosur_pdf = null
-            form.metadata = {
-                lokasi: '',
-                sponsor: '',
-                pembawa_acara: '',
-            }
+            form.event_id = null
+            form.tipe = ''
+            form.harga = 0
+            form.tersedia = true
+            form.fitur = []
+            fiturInput.value = ''
             Object.keys(errors).forEach(key => delete errors[key])
         }
     },
     { immediate: true }
 )
 
-const handleFile = (e) => {
-    form.brosur_pdf = e.target.files[0]
-}
 
 const handleSubmit = async () => {
-    const formData = new FormData()
-    formData.append('judul', form.judul)
-    formData.append('mulai_pada', form.mulai_pada)
-    formData.append('selesai_pada', form.selesai_pada)
-    formData.append('daring', form.daring ? 1 : 0)
-    formData.append('metadata[lokasi]', form.metadata.lokasi)
-    formData.append('metadata[sponsor]', form.metadata.sponsor)
-    formData.append('metadata[pembawa_acara]', form.metadata.pembawa_acara)
-    if (form.brosur_pdf) formData.append('brosur_pdf', form.brosur_pdf)
+    Object.assign(form, { fitur: fiturInput.value.split(',').map(f => f.trim()).filter(f => f) })
 
     try {
         if (form.id) {
-            await api.post(`/event/${form.id}?_method=PUT`, formData)
+            await api.put(`/tiket/${form.id}`, toRaw(form))
         } else {
-            await api.post('/event', formData)
+            await api.post('/tiket', toRaw(form))
         }
-
         emit('saved')
         emit('close')
     } catch (err) {
         if (err.response && err.response.status === 422) {
             Object.assign(errors, err.response.data.errors)
-            console.log(errors.brosur_pdf[0]);
-
         } else {
             console.error(err)
         }
     }
 }
 
+import { onMounted } from 'vue'
 
-const formatTanggal = (tanggal) => {
-    const date = new Date(tanggal)
-    const day = String(date.getDate()).padStart(2, '0')
-    const month = String(date.getMonth() + 1).padStart(2, '0') // karena bulan mulai dari 0
-    const year = date.getFullYear()
+const events = ref([])
 
-    return `${year}-${month}-${day}`
-}
-
+onMounted(async () => {
+    try {
+        const res = await api.get('/event-list')
+        events.value = res.data
+    } catch (error) {
+        console.error('Gagal memuat event list', error)
+    }
+})
 </script>

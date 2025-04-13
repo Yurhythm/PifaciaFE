@@ -2,10 +2,10 @@
   <Layout>
 
     <div>
-      <h2 class="mb-4">Event</h2>
+      <h2 class="mb-4">Tiket</h2>
 
       <div class="d-flex justify-content-between mb-3">
-        <input v-model="search" @input="fetchEvents()" class="form-control w-25" placeholder="Cari event..." />
+        <input v-model="search" @input="fetchtikets()" class="form-control w-25" placeholder="Cari tiket..." />
         <div>
           <div class="d-inline-block me-2 position-relative">
             <input type="file" ref="importInput" @change="importFile" class="d-none" />
@@ -18,32 +18,29 @@
             <span v-if="isExporting" class="spinner-border spinner-border-sm me-1"></span>
             Export
           </button>
-          <button class="btn btn-primary" @click="openCreateModal">Tambah Event</button>
+          <button class="btn btn-primary" @click="openCreateModal">Tambah Tiket</button>
         </div>
       </div>
 
       <table class="table table-bordered">
         <thead>
           <tr>
-            <th @click="sort('judul')" style="cursor: pointer">Judul</th>
-            <th>Brosur</th>
-            <th @click="sort('mulai_pada')" style="cursor: pointer">Mulai</th>
-            <th @click="sort('selesai_pada')" style="cursor: pointer">Selesai</th>
-            <th @click="sort('daring')" style="cursor: pointer">Daring</th>
+            <th @click="sort('judul')" style="cursor: pointer">Event</th>
+            <th @click="sort('tipe')" style="cursor: pointer">Tipe</th>
+            <th @click="sort('harga')" style="cursor: pointer">Harga</th>
+            <th @click="sort('tersedia')" style="cursor: pointer">Tersedia</th>
             <th>Aksi</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="event in events.data" :key="event.id">
-            <td>{{ event.judul }}</td>
-            <td><a v-if="event.brosur_pdf" :href="`http://localhost:8000/storage/${event.brosur_pdf}`"
-                target="_blank">Lihat</a></td>
-            <td>{{ formatTanggal(event.mulai_pada) }}</td>
-            <td>{{ formatTanggal(event.selesai_pada) }}</td>
-            <td>{{ event.daring ? 'Ya' : 'Tidak' }}</td>
+          <tr v-for="tiket in tikets.data" :key="tiket.id">
+            <td>{{ tiket.judul }}</td>
+            <td>{{ tiket.tipe }}</td>
+            <td>{{ tiket.harga }}</td>
+            <td>{{ tiket.tersedia ? 'Ya' : 'Tidak' }}</td>
             <td>
-              <button class="btn btn-sm btn-warning me-1" @click="editEvent(event)">Edit</button>
-              <button class="btn btn-sm btn-danger" @click="deleteEvent(event.id)">Hapus</button>
+              <button class="btn btn-sm btn-warning me-1" @click="edittiket(tiket)">Edit</button>
+              <button class="btn btn-sm btn-danger" @click="deletetiket(tiket.id)">Hapus</button>
             </td>
           </tr>
         </tbody>
@@ -51,18 +48,18 @@
 
       <nav>
         <ul class="pagination">
-          <li class="page-item" :class="{ disabled: !events.prev_page_url }">
-            <button class="page-link" @click="fetchEvents(events.prev_page_url)">Prev</button>
+          <li class="page-item" :class="{ disabled: !tikets.prev_page_url }">
+            <button class="page-link" @click="fetchtikets(tikets.prev_page_url)">Prev</button>
           </li>
-          <li class="page-item" :class="{ disabled: !events.next_page_url }">
-            <button class="page-link" @click="fetchEvents(events.next_page_url)">Next</button>
+          <li class="page-item" :class="{ disabled: !tikets.next_page_url }">
+            <button class="page-link" @click="fetchtikets(tikets.next_page_url)">Next</button>
           </li>
         </ul>
       </nav>
 
       <hr>
 
-      <EventForm :show="showForm" :event="selectedEvent" @close="closeForm" @saved="fetchEvents" />
+      <tiketForm :show="showForm" :tiket="selectedtiket" @close="closeForm" @saved="fetchtikets" />
     </div>
     <AuditTrail />
   </Layout>
@@ -101,25 +98,25 @@
 import Layout from '../layout/Layout.vue'
 import { ref, onMounted } from 'vue'
 import api from '../../axios'
-import EventForm from '../page_tiket/TiketForm.vue'
+import tiketForm from '../page_tiket/TiketForm.vue'
 import AuditTrail from '../page_tiket/AuditTrail.vue'
 
-const events = ref({})
+const tikets = ref({})
 const search = ref('')
 const sortBy = ref('judul')
 const sortDir = ref('asc')
 const showForm = ref(false)
-const selectedEvent = ref(null)
+const selectedtiket = ref(null)
 
-const fetchEvents = async (url = null) => {
+const fetchtikets = async (url = null) => {
   const params = {
     search: search.value,
     sort_by: sortBy.value,
     sort_dir: sortDir.value,
   }
 
-  const res = await api.get(url || '/event', { params })
-  events.value = res.data
+  const res = await api.get(url || '/tiket', { params })
+  tikets.value = res.data
 }
 
 const sort = (field) => {
@@ -129,13 +126,13 @@ const sort = (field) => {
     sortBy.value = field
     sortDir.value = 'asc'
   }
-  fetchEvents()
+  fetchtikets()
 }
 
-const deleteEvent = async (id) => {
-  if (confirm('Hapus event ini?')) {
-    await api.delete(`/event/${id}`)
-    fetchEvents()
+const deletetiket = async (id) => {
+  if (confirm('Hapus tiket ini?')) {
+    await api.delete(`/tiket/${id}`)
+    fetchtikets()
   }
 }
 
@@ -158,7 +155,7 @@ const importFile = async (e) => {
   isImporting.value = true
 
   try {
-    const res = await api.post('/event/import', formData)
+    const res = await api.post('/tiket/import', formData)
     const jobId = res.data.job_id
 
     localStorage.setItem('import_job_id', jobId)
@@ -184,7 +181,7 @@ const checkImportStatus = (jobId) => {
         isImporting.value = false
         localStorage.removeItem('import_job_id')
         alert('Data berhasil diimport.')
-        fetchEvents()
+        fetchtikets()
       }
 
       if (status === 'failed') {
@@ -202,14 +199,13 @@ const checkImportStatus = (jobId) => {
 
 
 const showExportModal = ref(false)
-const selectedFields = ref(['judul']) // default
+const selectedFields = ref(['event_judul']) // default
 const availableFields = [
-  'judul',
-  'brosur_pdf',
-  'mulai_pada',
-  'selesai_pada',
-  'daring',
-  'metadata',
+  'event_judul',
+  'tipe',
+  'harga',
+  'tersedia',
+  'fitur',
 ]
 
 const isExporting = ref(false)
@@ -217,7 +213,7 @@ const isExporting = ref(false)
 const exportData = async () => {
   try {
     isExporting.value = true
-    const res = await api.post('/event/export', {
+    const res = await api.post('/tiket/export', {
       fields: selectedFields.value,
     })
     // alert(`Export sedang dijalankan, mohon tunggu sampai file terdownload`)
@@ -273,18 +269,18 @@ const downloadFile = (url) => {
 }
 
 const openCreateModal = () => {
-  selectedEvent.value = null
+  selectedtiket.value = null
   showForm.value = true
 }
 
-const editEvent = (event) => {
-  selectedEvent.value = event
+const edittiket = (tiket) => {
+  selectedtiket.value = tiket
   showForm.value = true
 }
 
 const closeForm = () => {
   showForm.value = false
-  selectedEvent.value = null
+  selectedtiket.value = null
 }
 
 const formatTanggal = (tanggal) => {
@@ -298,7 +294,7 @@ const formatTanggal = (tanggal) => {
 
 
 onMounted(() => {
-  fetchEvents();
+  fetchtikets();
   const savedJobId = localStorage.getItem('export_job_id')
   if (savedJobId) {
     checkExportStatus(savedJobId)
