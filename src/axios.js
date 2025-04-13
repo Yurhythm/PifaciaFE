@@ -22,6 +22,9 @@ api.interceptors.response.use(
             localStorage.removeItem('user')
             router.push('/login')
         }
+        if (error.response && error.response.status === 403) {
+            router.push('/')
+        }
         return Promise.reject(error)
     }
 )

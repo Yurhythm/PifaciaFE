@@ -45,6 +45,7 @@
   
       localStorage.setItem('token', res.data.token)
       localStorage.setItem('user', JSON.stringify(res.data.user))
+      localStorage.setItem('permissions', JSON.stringify(res.data.user.permissions))
       router.push('/dashboard')
     } catch (err) {
       error.value = err.response?.data?.message || 'Login gagal'

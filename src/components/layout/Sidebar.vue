@@ -5,14 +5,24 @@
                 <li class="nav-item mb-2">
                     <router-link to="/dashboard" class="nav-link">Dashboard</router-link>
                 </li>
-                <li class="nav-item mb-2">
+                <li v-if="permissions.includes('event')" class="nav-item mb-2">
                     <router-link to="/event" class="nav-link">Event</router-link>
                 </li>
-                <!-- Tambah menu lainnya di sini -->
+                <li v-if="permissions.includes('tiket')" class="nav-item mb-2">
+                    <router-link to="/tiket" class="nav-link">Tiket</router-link>
+                </li>
+                <li v-if="permissions.includes('peserta')" class="nav-item mb-2">
+                    <router-link to="/peserta" class="nav-link">Peserta</router-link>
+                </li>
+                <li v-if="permissions.includes('user')" class="nav-item mb-2">
+                    <router-link to="/user" class="nav-link">User Management</router-link>
+                </li>
+                <li v-if="permissions.includes('role')" class="nav-item mb-2">
+                    <router-link to="/role" class="nav-link">Role Management</router-link>
+                </li>
             </ul>
         </div>
 
-        <!-- Garis pemisah -->
         <div class="border-top pt-3 mt-3">
             <button @click="logout" class="btn btn-outline-danger w-100">Logout</button>
         </div>
@@ -21,17 +31,15 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import api from '../../axios'
+
+const permissions = JSON.parse(localStorage.getItem('permissions'))
 
 const router = useRouter()
 
 const logout = async () => {
     try {
-        await axios.post('/api/logout', {}, {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`
-            }
-        })
+        await api.post('/logout')
     } catch (error) {
         console.error('Logout failed:', error)
     }

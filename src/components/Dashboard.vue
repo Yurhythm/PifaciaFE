@@ -1,7 +1,7 @@
 <template>
     <Layout>
         <h2>Selamat datang di Dashboard!</h2>
-        <p>Ini adalah halaman dashboard yang hanya bisa diakses setelah login.</p>
+        <p>Selamat datang di Pifacia Tes.</p>
     </Layout>
 </template>
 
