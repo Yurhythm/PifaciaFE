@@ -62,11 +62,12 @@
 </template>
 
 <script setup>
+import Swal from 'sweetalert2'
 import { reactive, watch, ref } from 'vue'
 import api from '../../axios'
 import { toRaw } from 'vue'
 
-const props = defineProps(['show', 'tiket']) 
+const props = defineProps(['show', 'tiket'])
 const emit = defineEmits(['close', 'saved'])
 
 const errors = reactive({})
@@ -113,8 +114,22 @@ const handleSubmit = async () => {
     try {
         if (form.id) {
             await api.put(`/tiket/${form.id}`, toRaw(form))
+
+            await Swal.fire({
+                title: 'Berhasil!',
+                text: 'Data tiket berhasil diubah.',
+                icon: 'success',
+                confirmButtonText: 'Oke'
+            })
         } else {
             await api.post('/tiket', toRaw(form))
+
+            await Swal.fire({
+                title: 'Berhasil!',
+                text: 'Data tiket berhasil ditambah.',
+                icon: 'success',
+                confirmButtonText: 'Oke'
+            })
         }
         emit('saved')
         emit('close')

@@ -1,6 +1,13 @@
 <template>
     <div>
-        <h5 class="mb-4 mt-5">History</h5>
+        <div class="d-flex justify-content-between align-items-center mb-4 mt-5">
+            <h5 class="mb-0">History</h5>
+            <button class="btn btn-outline-primary btn-sm" @click="fetchAuditTrails()" :disabled="loading">
+                <span v-if="loading" class="spinner-border spinner-border-sm me-1" role="status"
+                    aria-hidden="true"></span>
+                Refresh
+            </button>
+        </div>
 
         <table class="table table-bordered">
             <thead>

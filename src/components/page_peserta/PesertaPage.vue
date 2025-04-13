@@ -99,6 +99,7 @@
 </template>
 
 <script setup>
+import Swal from 'sweetalert2'
 import Layout from '../layout/Layout.vue'
 import { ref, onMounted } from 'vue'
 import api from '../../axios'
@@ -134,9 +135,33 @@ const sort = (field) => {
 }
 
 const deletepeserta = async (id) => {
-  if (confirm('Hapus peserta ini?')) {
-    await api.delete(`/peserta/${id}`)
-    fetchpesertas()
+  const result = await Swal.fire({
+    title: 'Hapus peserta ini?',
+    text: 'Tindakan ini tidak bisa dibatalkan!',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Ya, hapus!',
+    cancelButtonText: 'Batal'
+  })
+
+  if (result.isConfirmed) {
+    try {
+      await api.delete(`/peserta/${id}`)
+      await Swal.fire({
+        title: 'Berhasil!',
+        text: 'Peserta berhasil dihapus.',
+        icon: 'success',
+        confirmButtonText: 'Oke'
+      })
+      fetchpesertas()
+    } catch (error) {
+      Swal.fire({
+        title: 'Gagal!',
+        text: 'Terjadi kesalahan saat menghapus peserta.',
+        icon: 'error',
+        confirmButtonText: 'Tutup'
+      })
+    }
   }
 }
 
@@ -184,7 +209,13 @@ const checkImportStatus = (jobId) => {
         clearInterval(importIntervalId)
         isImporting.value = false
         localStorage.removeItem('import_job_id')
-        alert('Data berhasil diimport.')
+        // alert('Data berhasil diimport.')
+        Swal.fire({
+          title: 'Berhasil!',
+          text: 'Data berhasil diimport.',
+          icon: 'success',
+          confirmButtonText: 'Oke'
+        })
         fetchpesertas()
       }
 

@@ -98,6 +98,7 @@
 </template>
 
 <script setup>
+import Swal from 'sweetalert2'
 import Layout from '../layout/Layout.vue'
 import { ref, onMounted } from 'vue'
 import api from '../../axios'
@@ -133,9 +134,33 @@ const sort = (field) => {
 }
 
 const deleteEvent = async (id) => {
-  if (confirm('Hapus event ini?')) {
-    await api.delete(`/event/${id}`)
-    fetchEvents()
+  const result = await Swal.fire({
+    title: 'Yakin ingin menghapus?',
+    text: 'Event yang dihapus tidak bisa dikembalikan!',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Ya, hapus!',
+    cancelButtonText: 'Batal'
+  })
+
+  if (result.isConfirmed) {
+    try {
+      await api.delete(`/event/${id}`)
+      await Swal.fire({
+        title: 'Berhasil!',
+        text: 'Data event berhasil dihapus.',
+        icon: 'success',
+        confirmButtonText: 'Oke'
+      })
+      fetchEvents()
+    } catch (error) {
+      Swal.fire({
+        title: 'Gagal!',
+        text: 'Terjadi kesalahan saat menghapus event.',
+        icon: 'error',
+        confirmButtonText: 'Tutup'
+      })
+    }
   }
 }
 
@@ -183,7 +208,13 @@ const checkImportStatus = (jobId) => {
         clearInterval(importIntervalId)
         isImporting.value = false
         localStorage.removeItem('import_job_id')
-        alert('Data berhasil diimport.')
+        // alert('Data berhasil diimport.')
+        Swal.fire({
+          title: 'Berhasil!',
+          text: 'Data berhasil diimport.',
+          icon: 'success',
+          confirmButtonText: 'Oke'
+        })
         fetchEvents()
       }
 
@@ -191,7 +222,13 @@ const checkImportStatus = (jobId) => {
         clearInterval(importIntervalId)
         isImporting.value = false
         localStorage.removeItem('import_job_id')
-        alert('Import gagal.')
+        // alert('Import gagal.')
+        Swal.fire({
+          title: 'Gagal!',
+          text: 'Import gagal.',
+          icon: 'failed',
+          confirmButtonText: 'Oke'
+        })
       }
     } catch (err) {
       console.error('Gagal cek status import:', err)
@@ -252,7 +289,13 @@ const checkExportStatus = (jobId) => {
 
       if (status === 'failed') {
         clearInterval(intervalId)
-        alert('Export gagal.')
+        // alert('Export gagal.')
+        Swal.fire({
+          title: 'Gagal!',
+          text: 'Export Gagal.',
+          icon: 'failed',
+          confirmButtonText: 'Oke'
+        })
         localStorage.removeItem('export_job_id')
         isExporting.value = false
       }

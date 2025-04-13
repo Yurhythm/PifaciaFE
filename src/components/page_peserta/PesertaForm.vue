@@ -70,6 +70,7 @@
 </template>
 
 <script setup>
+import Swal from 'sweetalert2'
 import { ref, reactive, onMounted, watch } from 'vue'
 import api from '../../axios'
 import { toRaw } from 'vue'
@@ -139,8 +140,22 @@ const handleSubmit = async () => {
     try {
         if (form.id) {
             await api.put(`/peserta/${form.id}`, toRaw(form))
+
+            await Swal.fire({
+                title: 'Berhasil!',
+                text: 'Data peserta berhasil diubah.',
+                icon: 'success',
+                confirmButtonText: 'Oke'
+            })
         } else {
             await api.post('/peserta', toRaw(form))
+
+            await Swal.fire({
+                title: 'Berhasil!',
+                text: 'Data peserta berhasil ditambah.',
+                icon: 'success',
+                confirmButtonText: 'Oke'
+            })
         }
         emit('saved')
         emit('close')
