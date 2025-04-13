@@ -1,47 +1,36 @@
-<script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
-</script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
+  <div id="app">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary px-4">
+      <router-link to="/" class="navbar-brand">Pifacia Tes</router-link>
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <router-link to="/" class="nav-link"><b>Home</b></router-link>
+          </li>
+          <li class="nav-item" v-if="!isLoggedIn">
+            <router-link to="/login" class="nav-link"><b>Login</b></router-link>
+          </li>
+          <li class="nav-item" v-else>
+            <router-link to="/dashboard" class="nav-link">Dashboard</router-link>
+          </li>
+        </ul>
+      </div>
+    </nav>
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
-
-  <main>
-    <TheWelcome />
-  </main>
+    <main>
+      <router-view />
+    </main>
+  </div>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-}
+<script setup>
+import { computed } from 'vue'
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
+const isLoggedIn = computed(() => !!localStorage.getItem('token'))
+</script>
 
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
+<style>
+body {
+  background-color: #faf9f8;
 }
 </style>
