@@ -169,12 +169,10 @@ const initSelect2 = () => {
             placeholder: 'Pilih Role',
         })
 
-        // Update Vue form when select2 changes
         select.on('change', () => {
             form.value.role_ids = select.val().map(id => parseInt(id))
         })
 
-        // Set default values if editing
         if (form.value.role_ids?.length) {
             select.val(form.value.role_ids).trigger('change')
         }
