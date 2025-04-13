@@ -2,10 +2,10 @@
   <Layout>
 
     <div>
-      <h2 class="mb-4">Event</h2>
+      <h2 class="mb-4">Peserta</h2>
 
       <div class="d-flex justify-content-between mb-3">
-        <input v-model="search" @input="fetchEvents()" class="form-control w-25" placeholder="Cari event..." />
+        <input v-model="search" @input="fetchpesertas()" class="form-control w-25" placeholder="Cari peserta..." />
         <div>
           <div class="d-inline-block me-2 position-relative">
             <input type="file" ref="importInput" @change="importFile" class="d-none" />
@@ -18,32 +18,33 @@
             <span v-if="isExporting" class="spinner-border spinner-border-sm me-1"></span>
             Export
           </button>
-          <button class="btn btn-primary" @click="openCreateModal">Tambah Event</button>
+          <button class="btn btn-primary" @click="openCreateModal">Tambah Peserta</button>
         </div>
       </div>
 
       <table class="table table-bordered">
         <thead>
           <tr>
-            <th @click="sort('judul')" style="cursor: pointer">Judul</th>
-            <th>Brosur</th>
-            <th @click="sort('mulai_pada')" style="cursor: pointer">Mulai</th>
-            <th @click="sort('selesai_pada')" style="cursor: pointer">Selesai</th>
-            <th @click="sort('daring')" style="cursor: pointer">Daring</th>
+            <th @click="sort('nama')" style="cursor: pointer">Nama</th>
+            <th @click="sort('judul')" style="cursor: pointer">Event</th>
+            <th @click="sort('tipe')" style="cursor: pointer">Tipe Tiket</th>
+            <th @click="sort('email')" style="cursor: pointer">Email</th>
+            <th @click="sort('sudah_checkin')" style="cursor: pointer">Check-In</th>
+            <th @click="sort('daftar_pada')" style="cursor: pointer">Tanggal Daftar</th>
             <th>Aksi</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="event in events.data" :key="event.id">
-            <td>{{ event.judul }}</td>
-            <td><a v-if="event.brosur_pdf" :href="`http://localhost:8000/storage/${event.brosur_pdf}`"
-                target="_blank">Lihat</a></td>
-            <td>{{ formatTanggal(event.mulai_pada) }}</td>
-            <td>{{ formatTanggal(event.selesai_pada) }}</td>
-            <td>{{ event.daring ? 'Ya' : 'Tidak' }}</td>
+          <tr v-for="peserta in pesertas.data" :key="peserta.id">
+            <td>{{ peserta.nama }}</td>
+            <td>{{ peserta.judul }}</td>
+            <td>{{ peserta.tipe }}</td>
+            <td>{{ peserta.email }}</td>
+            <td>{{ peserta.sudah_checkin ? 'Ya' : 'Tidak' }}</td>
+            <td>{{ formatTanggal(peserta.daftar_pada) }}</td>
             <td>
-              <button class="btn btn-sm btn-warning me-1" @click="editEvent(event)">Edit</button>
-              <button class="btn btn-sm btn-danger" @click="deleteEvent(event.id)">Hapus</button>
+              <button class="btn btn-sm btn-warning me-1" @click="editpeserta(peserta)">Edit</button>
+              <button class="btn btn-sm btn-danger" @click="deletepeserta(peserta.id)">Hapus</button>
             </td>
           </tr>
         </tbody>
@@ -51,18 +52,18 @@
 
       <nav>
         <ul class="pagination">
-          <li class="page-item" :class="{ disabled: !events.prev_page_url }">
-            <button class="page-link" @click="fetchEvents(events.prev_page_url)">Prev</button>
+          <li class="page-item" :class="{ disabled: !pesertas.prev_page_url }">
+            <button class="page-link" @click="fetchpesertas(pesertas.prev_page_url)">Prev</button>
           </li>
-          <li class="page-item" :class="{ disabled: !events.next_page_url }">
-            <button class="page-link" @click="fetchEvents(events.next_page_url)">Next</button>
+          <li class="page-item" :class="{ disabled: !pesertas.next_page_url }">
+            <button class="page-link" @click="fetchpesertas(pesertas.next_page_url)">Next</button>
           </li>
         </ul>
       </nav>
 
       <hr>
 
-      <EventForm :show="showForm" :event="selectedEvent" @close="closeForm" @saved="fetchEvents" />
+      <pesertaForm :show="showForm" :peserta="selectedpeserta" @close="closeForm" @saved="fetchpesertas" />
     </div>
     <AuditTrail />
   </Layout>
@@ -101,25 +102,25 @@
 import Layout from '../layout/Layout.vue'
 import { ref, onMounted } from 'vue'
 import api from '../../axios'
-import EventForm from '../page_peserta/PesertaForm.vue'
+import pesertaForm from '../page_peserta/PesertaForm.vue'
 import AuditTrail from '../page_peserta/AuditTrail.vue'
 
-const events = ref({})
+const pesertas = ref({})
 const search = ref('')
 const sortBy = ref('judul')
 const sortDir = ref('asc')
 const showForm = ref(false)
-const selectedEvent = ref(null)
+const selectedpeserta = ref(null)
 
-const fetchEvents = async (url = null) => {
+const fetchpesertas = async (url = null) => {
   const params = {
     search: search.value,
     sort_by: sortBy.value,
     sort_dir: sortDir.value,
   }
 
-  const res = await api.get(url || '/event', { params })
-  events.value = res.data
+  const res = await api.get(url || '/peserta', { params })
+  pesertas.value = res.data
 }
 
 const sort = (field) => {
@@ -129,13 +130,13 @@ const sort = (field) => {
     sortBy.value = field
     sortDir.value = 'asc'
   }
-  fetchEvents()
+  fetchpesertas()
 }
 
-const deleteEvent = async (id) => {
-  if (confirm('Hapus event ini?')) {
-    await api.delete(`/event/${id}`)
-    fetchEvents()
+const deletepeserta = async (id) => {
+  if (confirm('Hapus peserta ini?')) {
+    await api.delete(`/peserta/${id}`)
+    fetchpesertas()
   }
 }
 
@@ -158,7 +159,7 @@ const importFile = async (e) => {
   isImporting.value = true
 
   try {
-    const res = await api.post('/event/import', formData)
+    const res = await api.post('/peserta/import', formData)
     const jobId = res.data.job_id
 
     localStorage.setItem('import_job_id', jobId)
@@ -184,7 +185,7 @@ const checkImportStatus = (jobId) => {
         isImporting.value = false
         localStorage.removeItem('import_job_id')
         alert('Data berhasil diimport.')
-        fetchEvents()
+        fetchpesertas()
       }
 
       if (status === 'failed') {
@@ -202,14 +203,14 @@ const checkImportStatus = (jobId) => {
 
 
 const showExportModal = ref(false)
-const selectedFields = ref(['judul']) // default
+const selectedFields = ref(['event_judul'])
 const availableFields = [
-  'judul',
-  'brosur_pdf',
-  'mulai_pada',
-  'selesai_pada',
-  'daring',
-  'metadata',
+  'event_judul',
+  'tipe_tiket',
+  'nama',
+  'email',
+  'sudah_checkin',
+  'daftar_pada',
 ]
 
 const isExporting = ref(false)
@@ -217,7 +218,7 @@ const isExporting = ref(false)
 const exportData = async () => {
   try {
     isExporting.value = true
-    const res = await api.post('/event/export', {
+    const res = await api.post('/peserta/export', {
       fields: selectedFields.value,
     })
     // alert(`Export sedang dijalankan, mohon tunggu sampai file terdownload`)
@@ -273,32 +274,36 @@ const downloadFile = (url) => {
 }
 
 const openCreateModal = () => {
-  selectedEvent.value = null
+  selectedpeserta.value = null
   showForm.value = true
 }
 
-const editEvent = (event) => {
-  selectedEvent.value = event
+const editpeserta = (peserta) => {
+  selectedpeserta.value = peserta
   showForm.value = true
 }
 
 const closeForm = () => {
   showForm.value = false
-  selectedEvent.value = null
+  selectedpeserta.value = null
 }
 
 const formatTanggal = (tanggal) => {
   const date = new Date(tanggal)
+
   const day = String(date.getDate()).padStart(2, '0')
-  const month = String(date.getMonth() + 1).padStart(2, '0') // karena bulan mulai dari 0
+  const month = String(date.getMonth() + 1).padStart(2, '0')
   const year = date.getFullYear()
 
-  return `${day}-${month}-${year}`
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+
+  return `${day}-${month}-${year} ${hours}:${minutes}`
 }
 
 
 onMounted(() => {
-  fetchEvents();
+  fetchpesertas();
   const savedJobId = localStorage.getItem('export_job_id')
   if (savedJobId) {
     checkExportStatus(savedJobId)

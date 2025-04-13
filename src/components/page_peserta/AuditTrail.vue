@@ -47,7 +47,7 @@ const fetchAuditTrails = async (url = null) => {
     loading.value = true
     try {
         const res = await api.get(url || '/audit-trails', {
-            params: { menu: 'event' }
+            params: { menu: 'peserta' }
         })
         auditTrails.value = res.data
     } catch (err) {
