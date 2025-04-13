@@ -11,7 +11,7 @@
             <router-link to="/login" class="nav-link"><b>Login</b></router-link>
           </li>
           <li class="nav-item" v-else>
-            <router-link to="/dashboard" class="nav-link">Dashboard</router-link>
+            <router-link to="/dashboard" class="nav-link"><b>Dashboard</b></router-link>
           </li>
         </ul>
       </div>
